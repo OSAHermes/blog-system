@@ -52,7 +52,8 @@ router.get('/articles', async (req, res) => {
       LIMIT ? OFFSET ?
     `, [limit, offset]);
     
-    const [total] = await query('SELECT COUNT(*) as count FROM articles WHERE status = 1');
+    const totalResult = await query('SELECT COUNT(*) as total FROM articles WHERE status = 1');
+    const totalCount = totalResult[0]?.total || 0;
     
     res.json({
       success: true,
@@ -60,8 +61,8 @@ router.get('/articles', async (req, res) => {
       pagination: {
         page,
         limit,
-        total: total[0].count,
-        totalPages: Math.ceil(total[0].count / limit)
+        total: totalCount,
+        totalPages: Math.ceil(totalCount / limit)
       }
     });
   } catch (err) {

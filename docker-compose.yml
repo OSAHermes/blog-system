@@ -15,7 +15,7 @@ services:
       MYSQL_USER: ${MYSQL_USER:-blog}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-blogpass123}
     ports:
-      - "127.0.0.1:3306:3306"
+      - "127.0.0.1:3456:3306"
     volumes:
       - mysql_data:/var/lib/mysql
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -45,14 +45,14 @@ services:
       JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key-change-this}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
     ports:
-      - "127.0.0.1:3000:3000"
+      - "127.0.0.1:9876:3000"
     depends_on:
       mysql:
         condition: service_healthy
     networks:
       - blog_network
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/v1/public/settings"]
+      test: ["CMD", "node", "-e", "const http=require('http');http.get('http://localhost:3000/health',(r)=>{process.exit(r.statusCode===200?0:1)}).on('error',()=>process.exit(1))"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -65,7 +65,7 @@ services:
     container_name: blog_web
     restart: unless-stopped
     ports:
-      - "127.0.0.1:8080:80"
+      - "127.0.0.1:7777:80"
     depends_on:
       - api
     networks:
